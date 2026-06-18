@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ===== SEO / Page meta ===== -->
+  <title>Shila Handicraft | Handmade Crochet, Knitwear &amp; Beaded Jewellery from Nepal</title>
+  <meta name="description" content="Shila Handicraft makes hand-crafted woolen sweaters, crochet pieces, beaded rings, necklaces and earrings in Kathmandu, Nepal. Handmade with love." />
+  <meta name="theme-color" content="#D4537E" />
+
+  <!-- ===== Google Fonts: Playfair Display (headings) + Poppins (body) ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ===== Stylesheet ===== -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- =========================================================
+       1. NAVBAR
+  ========================================================== -->
+  <header class="navbar" id="top">
+    <div class="container nav-inner">
+      <a href="#top" class="brand" aria-label="Shila Handicraft home">
+        <span class="brand-mark" aria-hidden="true">&#10047;</span>
+        <span class="brand-text">Shila <em>Handicraft</em></span>
+      </a>
+
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="#top" class="nav-link">Home</a>
+        <a href="#shop" class="nav-link">Shop</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Cart button with live count badge -->
+        <button class="cart-btn" id="cartBtn" aria-label="Open shopping cart">
+          <span class="cart-icon" aria-hidden="true">&#128722;</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+
+        <!-- Hamburger for mobile -->
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       2. HERO
+  ========================================================== -->
+  <section class="hero">
+    <div class="hero-petals" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <p class="eyebrow">Kathmandu &middot; Handmade in Nepal</p>
+      <h1 class="hero-title">Handcrafted<br />with <em>Love</em> from Nepal</h1>
+      <p class="hero-sub">
+        Woolen sweaters, crochet treasures and beaded jewellery &mdash;
+        each piece made stitch by stitch, one of a kind.
+      </p>
+      <button class="btn btn-primary" id="shopNowBtn">Shop Now</button>
+    </div>
+    <div class="hero-scallop" aria-hidden="true"></div>
+  </section>
+
+  <!-- =========================================================
+       3. FEATURED CATEGORIES
+  ========================================================== -->
+  <section class="categories" aria-labelledby="catHeading">
+    <div class="container">
+      <p class="eyebrow center">Browse by craft</p>
+      <h2 class="section-title center" id="catHeading">Featured Categories</h2>
+
+      <div class="category-grid" id="categoryGrid">
+        <!-- Category cards are rendered by script.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       4. PRODUCT SHOP
+  ========================================================== -->
+  <section class="shop" id="shop" aria-labelledby="shopHeading">
+    <div class="container">
+      <p class="eyebrow center">The collection</p>
+      <h2 class="section-title center" id="shopHeading">Shop Handmade</h2>
+
+      <!-- Search -->
+      <div class="shop-controls">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">&#128269;</span>
+          <input
+            type="search"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search products&hellip;"
+            aria-label="Search products by name"
+          />
+        </div>
+
+        <!-- Category filter buttons (rendered by script.js) -->
+        <div class="filter-bar" id="filterBar" role="group" aria-label="Filter by category"></div>
+      </div>
+
+      <!-- Product grid -->
+      <div class="product-grid" id="productGrid">
+        <!-- Product cards are rendered by script.js -->
+      </div>
+
+      <!-- Empty state -->
+      <p class="empty-state" id="emptyState" hidden>
+        No pieces match your search. Try another word or category.
+      </p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       5. SHOPPING CART (slide-in sidebar)
+  ========================================================== -->
+  <div class="overlay" id="overlay" hidden></div>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="cart-head">
+      <h2 class="cart-title">Your Cart</h2>
+      <button class="cart-close" id="cartClose" aria-label="Close cart">&times;</button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <!-- Cart line items rendered by script.js -->
+    </div>
+
+    <p class="cart-empty" id="cartEmpty">Your cart is empty. Add something handmade.</p>
+
+    <div class="cart-foot" id="cartFoot" hidden>
+      <div class="cart-subtotal">
+        <span>Subtotal</span>
+        <strong id="cartSubtotal">NPR 0</strong>
+      </div>
+      <button class="btn btn-primary full" id="checkoutBtn">Proceed to Checkout</button>
+      <button class="btn btn-ghost full" id="continueBtn">Continue Shopping</button>
+    </div>
+  </aside>
+
+  <!-- =========================================================
+       6. ABOUT
+  ========================================================== -->
+  <section class="about" id="about" aria-labelledby="aboutHeading">
+    <div class="container about-inner">
+      <div class="about-copy">
+        <p class="eyebrow">Our story</p>
+        <h2 class="section-title" id="aboutHeading">Made by hand, made to last</h2>
+        <p>
+          Shila Handicraft began with a hook, a ball of yarn and a love of
+          colour. From a small home studio in Lambagar, Kathmandu, every
+          sweater, crochet piece and beaded ornament is made by hand &mdash;
+          slowly, carefully and with a lot of heart.
+        </p>
+        <p>
+          When you buy from us, you are not buying from a factory. You are
+          supporting a maker, an artisan and a craft that has been passed
+          through generations in Nepal.
+        </p>
+      </div>
+
+      <div class="highlight-grid">
+        <div class="highlight">
+          <span class="highlight-icon" aria-hidden="true">&#9986;</span>
+          <h3>100% Handmade</h3>
+          <p>Every stitch and bead placed by hand &mdash; no two pieces are exactly alike.</p>
+        </div>
+        <div class="highlight">
+          <span class="highlight-icon" aria-hidden="true">&#127995;</span>
+          <h3>Supports Local Artisans</h3>
+          <p>Your order directly supports women artisans here in Kathmandu.</p>
+        </div>
+        <div class="highlight">
+          <span class="highlight-icon" aria-hidden="true">&#127807;</span>
+          <h3>Eco Friendly</h3>
+          <p>Natural fibres, minimal waste and packaging that loves the planet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       7. CONTACT
+  ========================================================== -->
+  <section class="contact" id="contact" aria-labelledby="contactHeading">
+    <div class="container contact-inner">
+      <div class="contact-info">
+        <p class="eyebrow">Say hello</p>
+        <h2 class="section-title" id="contactHeading">Get in Touch</h2>
+        <p>Questions, custom orders or wholesale? Drop us a message.</p>
+        <ul class="contact-list">
+          <li><span aria-hidden="true">&#128241;</span> <a href="tel:+9779765352818">+977 976-5352818</a></li>
+          <li><span aria-hidden="true">&#9993;</span> <a href="mailto:shilaadhikari396@gmail.com">shilaadhikari396@gmail.com</a></li>
+          <li><span aria-hidden="true">&#128205;</span> Lambagar, Kathmandu, Nepal</li>
+          <li><span aria-hidden="true">&#10047;</span> <a href="https://www.instagram.com/ceela_handicraft/" target="_blank" rel="noopener">@ceela_handicraft</a></li>
+        </ul>
+      </div>
+
+      <!-- NOTE: not a <form> tag so submission is fully handled in JS -->
+      <div class="contact-form" id="contactForm" novalidate>
+        <div class="field">
+          <label for="cfName">Name</label>
+          <input type="text" id="cfName" />
+          <small class="error" id="errName"></small>
+        </div>
+        <div class="field">
+          <label for="cfEmail">Email</label>
+          <input type="email" id="cfEmail" />
+          <small class="error" id="errEmail"></small>
+        </div>
+        <div class="field">
+          <label for="cfMessage">Message</label>
+          <textarea id="cfMessage" rows="4"></textarea>
+          <small class="error" id="errMessage"></small>
+        </div>
+        <button class="btn btn-primary full" id="contactSend">Send Message</button>
+        <p class="form-success" id="formSuccess" hidden>Thank you! Your message has been sent.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       8. FOOTER
+  ========================================================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="brand-mark" aria-hidden="true">&#10047;</span>
+        <span class="brand-text">Shila <em>Handicraft</em></span>
+        <p class="footer-tag">Handcrafted with love from Nepal.</p>
+      </div>
+
+      <nav class="footer-links" aria-label="Footer navigation">
+        <h4>Quick Links</h4>
+        <a href="#top">Home</a>
+        <a href="#shop">Shop</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="footer-social">
+        <h4>Follow us</h4>
+        <div class="social-row">
+          <a href="https://www.instagram.com/ceela_handicraft/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+          <a href="https://wa.me/9779765352818" target="_blank" rel="noopener" aria-label="WhatsApp">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+    <p class="copyright">&copy; <span id="year"></span> Shila Handicraft &middot; shilahandicraft.com.np &middot; All rights reserved.</p>
+  </footer>
+
+  <!-- =========================================================
+       CHECKOUT MODAL
+  ========================================================== -->
+  <div class="modal" id="checkoutModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <span class="modal-mark" aria-hidden="true">&#10047;</span>
+      <h2 id="modalTitle">Order Summary</h2>
+      <div class="modal-items" id="modalItems"></div>
+      <div class="modal-total">
+        <span>Total</span>
+        <strong id="modalTotal">NPR 0</strong>
+      </div>
+      <p class="modal-note">
+        This is a demo checkout. To complete your order, message us on
+        <a href="https://wa.me/9779765352818" target="_blank" rel="noopener">WhatsApp</a>
+        or call +977 976-5352818.
+      </p>
+      <button class="btn btn-primary full" id="confirmOrderBtn">Confirm Order</button>
+    </div>
+  </div>
+
+  <!-- Toast for small confirmations -->
+  <div class="toast" id="toast" hidden></div>
+
+  <!-- ===== Scripts ===== -->
+  <script src="script.js"></script>
+</body>
+</html>
