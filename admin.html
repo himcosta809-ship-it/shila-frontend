@@ -213,6 +213,7 @@
       <div class="nav-item" data-page="messages" onclick="showPage('messages')">
         💬 Messages <span class="badge" id="msg-badge" style="display:none">0</span>
       </div>
+      <div class="nav-item" data-page="settings" onclick="showPage('settings')">⚙️ Settings</div>
     </nav>
     <div class="sidebar-logout">
       <button class="btn-logout" onclick="logout()">Sign Out</button>
@@ -267,7 +268,56 @@
       <div class="page-header"><h1>Messages</h1></div>
       <div id="messages-list"><p style="color:var(--muted)">Loading…</p></div>
     </section>
+<!-- ─ Settings ───────────────────────────────────────────── -->
+<section class="page" id="page-settings">
+  <div class="page-header"><h1>Site Settings</h1></div>
 
+  <div class="table-wrap" style="padding:1.5rem 2rem;max-width:600px;">
+    <h2 style="font-size:1rem;margin-bottom:1rem;color:var(--pink-dark)">Typography</h2>
+
+    <div class="form-row">
+      <label>Heading Font Size (px) — main page titles</label>
+      <input type="number" id="set-heading-size" min="20" max="80">
+    </div>
+    <div class="form-row">
+      <label>Body Font Size (px) — normal text</label>
+      <input type="number" id="set-body-size" min="12" max="24">
+    </div>
+    <div class="form-row">
+      <label>Product Image Height (px) — shop grid cards</label>
+      <input type="number" id="set-img-height" min="100" max="500">
+    </div>
+
+    <h2 style="font-size:1rem;margin:1.5rem 0 1rem;color:var(--pink-dark)">Contact &amp; Social Links</h2>
+
+    <div class="form-row">
+      <label>Instagram URL</label>
+      <input type="text" id="set-instagram" placeholder="https://www.instagram.com/yourpage">
+    </div>
+    <div class="form-row">
+      <label>Facebook URL</label>
+      <input type="text" id="set-facebook" placeholder="https://www.facebook.com/yourpage">
+    </div>
+    <div class="form-row">
+      <label>WhatsApp Number (digits only, with country code)</label>
+      <input type="text" id="set-whatsapp" placeholder="9779765352818">
+    </div>
+    <div class="form-row">
+      <label>Phone Number (display format)</label>
+      <input type="text" id="set-phone" placeholder="+977 976-5352818">
+    </div>
+    <div class="form-row">
+      <label>Email</label>
+      <input type="text" id="set-email" placeholder="you@example.com">
+    </div>
+    <div class="form-row">
+      <label>Address</label>
+      <input type="text" id="set-address" placeholder="Lambagar, Kathmandu, Nepal">
+    </div>
+
+    <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+  </div>
+</section>
   </main>
 </div>
 
@@ -402,10 +452,13 @@ function launchApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('sidebar-date').textContent = new Date().toLocaleDateString('en-NP', { weekday: 'short', day: 'numeric', month: 'short' });
-  loadDashboard();
-  loadProducts();
-  loadOrders();
-  loadMessages();
+  
+loadDashboard();
+loadProducts();
+loadOrders();
+loadMessages();
+loadSettings();
+  
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -682,7 +735,43 @@ async function deleteMessage(id) {
     loadMessages(); loadDashboard();
   } catch { toast('Delete failed'); }
 }
+// ── Settings ─────────────────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const res = await fetch(`${API}/admin/settings`, { headers: authHeaders() });
+    if (res.status === 401) { logout(); return; }
+    const s = await res.json();
+    document.getElementById('set-heading-size').value = s.headingFontSize;
+    document.getElementById('set-body-size').value    = s.bodyFontSize;
+    document.getElementById('set-img-height').value   = s.productImageHeight;
+    document.getElementById('set-instagram').value    = s.instagramUrl || '';
+    document.getElementById('set-facebook').value     = s.facebookUrl || '';
+    document.getElementById('set-whatsapp').value      = s.whatsappNumber || '';
+    document.getElementById('set-phone').value        = s.phoneNumber || '';
+    document.getElementById('set-email').value        = s.email || '';
+    document.getElementById('set-address').value       = s.address || '';
+  } catch (e) { console.error(e); }
+}
 
+async function saveSettings() {
+  const body = JSON.stringify({
+    headingFontSize: Number(document.getElementById('set-heading-size').value),
+    bodyFontSize: Number(document.getElementById('set-body-size').value),
+    productImageHeight: Number(document.getElementById('set-img-height').value),
+    instagramUrl: document.getElementById('set-instagram').value.trim(),
+    facebookUrl: document.getElementById('set-facebook').value.trim(),
+    whatsappNumber: document.getElementById('set-whatsapp').value.trim(),
+    phoneNumber: document.getElementById('set-phone').value.trim(),
+    email: document.getElementById('set-email').value.trim(),
+    address: document.getElementById('set-address').value.trim()
+  });
+  try {
+    const res = await fetch(`${API}/admin/settings`, { method: 'PUT', headers: authHeaders(), body });
+    if (!res.ok) { toast('Save failed'); return; }
+    toast('Settings saved ✓ — refresh your shop page to see changes');
+  } catch { toast('Could not save settings'); }
+}
+  
 // ── Keyboard: close modals with Escape ─────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
