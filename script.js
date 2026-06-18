@@ -5,8 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── CONFIG: point this at your Render/Railway backend URL after deployment ──
-const API_BASE = 'https://shila-handicraft-api.onrender.com/api';
-// During local development change this to: 'http://localhost:5000/api'
+const API_BASE = 'https://shila-backend.onrender.com/api';// During local development change this to: 'http://localhost:5000/api'
 
 // ── State ───────────────────────────────────────────────────────────────────
 let allProducts = [];
