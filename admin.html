@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shila Handicraft — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================
+   SHILA HANDICRAFT — ADMIN (standalone, pink theme)
+   Login: admin / shila2024
+   Shares localStorage with the shop:
+     shila_products, shila_messages
+   ========================================================= */
+:root{
+  --pink-soft:#FFE4EE; --pink-light:#FFB6C1; --rose-gold:#C9A0A0;
+  --rose-deep:#D4537E; --rose-deeper:#b8355f; --cream:#FFF5F7;
+  --ink:#4a3a40; --ink-soft:#8a7077; --white:#fff;
+  --shadow:0 12px 34px rgba(201,160,160,.22);
+  --radius:18px;
+  --font-head:"Playfair Display",serif; --font-body:"Poppins",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);font-weight:300;}
+h1,h2,h3,h4{font-family:var(--font-head);font-weight:600;}
+button{font-family:var(--font-body);cursor:pointer;}
+input,select,textarea{font-family:var(--font-body);}
+a{color:var(--rose-deep);}
+
+/* ---------- LOGIN ---------- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;
+  background:radial-gradient(circle at 30% 20%,rgba(255,182,193,.5),transparent 50%),
+             linear-gradient(160deg,var(--pink-soft),var(--cream));}
+.login-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:40px 34px;width:100%;max-width:380px;text-align:center;}
+.login-mark{font-size:2.2rem;color:var(--rose-deep);}
+.login-card h1{font-size:1.6rem;margin:6px 0 4px;}
+.login-card p{color:var(--ink-soft);font-size:.9rem;margin-bottom:22px;}
+.login-card .field{text-align:left;margin-bottom:16px;}
+.login-card label{display:block;font-size:.82rem;font-weight:500;margin-bottom:6px;}
+.login-card input{width:100%;padding:12px 14px;border:1.5px solid rgba(201,160,160,.3);
+  border-radius:12px;background:var(--cream);font-size:.95rem;}
+.login-card input:focus{outline:none;border-color:var(--rose-deep);}
+.btn{border:none;border-radius:999px;padding:13px 26px;font-weight:500;font-size:.95rem;
+  background:linear-gradient(135deg,var(--rose-deep),var(--pink-light));color:#fff;
+  transition:transform .2s ease,box-shadow .2s ease;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(212,83,126,.3);}
+.btn.full{width:100%;}
+.btn-ghost{background:var(--pink-soft);color:var(--rose-deeper);}
+.btn-ghost:hover{background:var(--pink-light);color:#fff;box-shadow:none;}
+.btn-sm{padding:7px 16px;font-size:.8rem;}
+.btn-danger{background:#e07a8b;}
+.login-err{color:#c0392b;font-size:.85rem;min-height:18px;margin-bottom:8px;}
+.login-hint{margin-top:18px;font-size:.78rem;color:var(--ink-soft);}
+
+/* ---------- APP LAYOUT ---------- */
+.app{display:none;min-height:100vh;grid-template-columns:240px 1fr;}
+.sidebar{background:var(--ink);color:#f4e6ea;padding:26px 18px;display:flex;flex-direction:column;}
+.sidebar .brand{display:flex;align-items:center;gap:8px;font-family:var(--font-head);
+  font-size:1.25rem;color:#fff;margin-bottom:30px;padding:0 8px;}
+.sidebar .brand span{color:var(--pink-light);}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;
+  border:none;color:#cbb0b8;padding:13px 16px;border-radius:12px;font-size:.92rem;margin-bottom:4px;
+  transition:background .2s ease,color .2s ease;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav-item.active{background:var(--rose-deep);color:#fff;}
+.sidebar .logout{margin-top:auto;}
+
+.main{padding:30px 34px;overflow-y:auto;max-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+.topbar h2{font-size:1.7rem;}
+.topbar .who{color:var(--ink-soft);font-size:.88rem;}
+
+.view{display:none;}
+.view.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ---------- STAT CARDS ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:30px;}
+.stat{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+.stat .icon{font-size:1.5rem;}
+.stat .num{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--rose-deep);margin:6px 0 2px;}
+.stat .label{color:var(--ink-soft);font-size:.85rem;}
+
+/* ---------- PANELS / TABLES ---------- */
+.panel{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px;}
+.panel h3{font-size:1.2rem;margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid rgba(201,160,160,.2);vertical-align:middle;}
+th{color:var(--ink-soft);font-weight:500;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;}
+tr:last-child td{border-bottom:none;}
+.thumb-cell{width:46px;height:46px;border-radius:10px;object-fit:cover;background:var(--pink-soft);
+  display:grid;place-items:center;color:#fff;}
+.tag{display:inline-block;background:var(--pink-soft);color:var(--rose-deeper);font-size:.72rem;
+  padding:4px 11px;border-radius:999px;font-weight:500;}
+.row-actions{display:flex;gap:8px;}
+
+/* ---------- FORMS ---------- */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-grid .field.full{grid-column:1/-1;}
+.field label{display:block;font-size:.82rem;font-weight:500;margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1.5px solid rgba(201,160,160,.3);
+  border-radius:12px;background:var(--cream);font-size:.92rem;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--rose-deep);}
+.form-actions{display:flex;gap:10px;margin-top:18px;}
+
+/* Image upload UI */
+.upload-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.upload-status{font-size:.85rem;color:var(--ink-soft);}
+.upload-status.busy{color:var(--rose-deep);}
+.upload-status.ok{color:#2e8b57;}
+.upload-status.err{color:#c0392b;}
+.img-preview{width:60px;height:60px;border-radius:12px;object-fit:cover;box-shadow:var(--shadow);}
+.img-url{width:100%;padding:11px 13px;border:1.5px solid rgba(201,160,160,.3);
+  border-radius:12px;background:var(--cream);font-size:.9rem;}
+.img-url:focus{outline:none;border-color:var(--rose-deep);}
+
+select.status-select{padding:7px 10px;border-radius:10px;border:1.5px solid rgba(201,160,160,.3);
+  background:var(--cream);font-size:.82rem;}
+
+.badge-unread{background:var(--rose-deep);color:#fff;font-size:.68rem;padding:3px 9px;border-radius:999px;}
+.badge-read{background:#e8dde1;color:var(--ink-soft);font-size:.68rem;padding:3px 9px;border-radius:999px;}
+.empty{color:var(--ink-soft);padding:20px 0;text-align:center;}
+
+@media(max-width:860px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{flex-direction:row;flex-wrap:wrap;align-items:center;}
+  .sidebar .brand{margin-bottom:0;width:100%;}
+  .sidebar .logout{margin-top:0;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .form-grid{grid-template-columns:1fr;}
+  .main{max-height:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-mark">&#10047;</div>
+    <h1>Shila Handicraft</h1>
+    <p>Admin Panel</p>
+    <div class="field">
+      <label for="user">Username</label>
+      <input type="text" id="user" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="pass">Password</label>
+      <input type="password" id="pass" autocomplete="current-password" />
+    </div>
+    <p class="login-err" id="loginErr"></p>
+    <button class="btn full" id="loginBtn">Log In</button>
+    <p class="login-hint">Demo login &middot; admin / shila2024</p>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div class="app" id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">&#10047; Shila <span>Admin</span></div>
+    <button class="nav-item active" data-view="dashboard">&#128202; Dashboard</button>
+    <button class="nav-item" data-view="products">&#128722; Products</button>
+    <button class="nav-item" data-view="messages">&#9993; Messages</button>
+    <button class="nav-item" data-view="orders">&#128230; Orders</button>
+    <button class="nav-item logout" id="logoutBtn">&#8629; Log Out</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <h2 id="viewTitle">Dashboard</h2>
+      <span class="who">Welcome back, Shila &#10047;</span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="stats">
+        <div class="stat"><div class="icon">&#128722;</div><div class="num" id="statProducts">0</div><div class="label">Total Products</div></div>
+        <div class="stat"><div class="icon">&#128230;</div><div class="num" id="statOrders">0</div><div class="label">Total Orders</div></div>
+        <div class="stat"><div class="icon">&#9993;</div><div class="num" id="statMessages">0</div><div class="label">Messages Received</div></div>
+        <div class="stat"><div class="icon">&#10084;</div><div class="num" id="statWishlist">0</div><div class="label">Wishlist Saves</div></div>
+      </div>
+      <div class="panel">
+        <h3>Recent Messages</h3>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody id="recentMessages"></tbody>
+        </table>
+        <p class="empty" id="recentEmpty" hidden>No messages yet.</p>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="view" id="view-products">
+      <div class="panel">
+        <h3 id="productFormTitle">Add New Product</h3>
+        <div class="form-grid">
+          <div class="field"><label>Name</label><input type="text" id="pName" /></div>
+          <div class="field"><label>Category</label>
+            <select id="pCategory">
+              <option>Crochet</option><option>Jewelry</option>
+              <option>Knitwear</option><option>Accessories</option>
+            </select>
+          </div>
+          <div class="field"><label>Price (NPR)</label><input type="number" id="pPrice" min="0" /></div>
+          <div class="field full">
+            <label>Product Photo</label>
+            <div class="upload-row">
+              <button type="button" class="btn btn-ghost" id="chooseImgBtn">&#128247; Choose Image</button>
+              <input type="file" id="imgFile" accept="image/*" hidden />
+              <span class="upload-status" id="uploadStatus">No image chosen yet.</span>
+              <img id="imgPreview" class="img-preview" alt="" hidden />
+            </div>
+            <input type="text" id="pImage" class="img-url" placeholder="…or paste an image link / assets/your-photo.jpg" />
+          </div>
+          <div class="field full"><label>Description</label><textarea id="pDesc" rows="2"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" id="saveProductBtn">Save Product</button>
+          <button class="btn btn-ghost" id="resetProductBtn">Clear Form</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>All Products</h3>
+        <table>
+          <thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead>
+          <tbody id="productRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MESSAGES -->
+    <section class="view" id="view-messages">
+      <div class="panel">
+        <h3>Contact Messages</h3>
+        <table>
+          <thead><tr><th>Status</th><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="messageRows"></tbody>
+        </table>
+        <p class="empty" id="messagesEmpty" hidden>No messages yet.</p>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section class="view" id="view-orders">
+      <div class="panel">
+        <h3>Orders</h3>
+        <table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody id="orderRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* =========================================================
+   STORAGE KEYS (shared with the shop)
+   ========================================================= */
+const KEYS = { products:"shila_products", messages:"shila_messages", wishlist:"shila_wishlist" };
+
+/* imgbb image hosting — free API key (used to upload product photos) */
+const IMGBB_KEY = "fb46f1930c5de23cfa83e7a6fa4f8a0b";
+
+/* Default products — kept in sync with script.js so the admin
+   works even before the shop has been opened. */
+const DEFAULT_PRODUCTS = [
+  {id:1,name:"Granny Square Halter Top",category:"Crochet",price:1800,description:"Boho fringe halter in white, sky blue and mustard. Hand-crocheted, one size.",image:"assets/crochet-halter-top.jpg",color:"#FFB6C1"},
+  {id:2,name:"Crochet Barefoot Sandals",category:"Crochet",price:950,description:"Delicate flower foot jewellery for beaches and weddings. Sold as a pair.",image:"assets/barefoot-sandals.jpg",color:"#FFE4EE"},
+  {id:3,name:"Cute Octopus Keyring",category:"Crochet",price:350,description:"Squishy amigurumi octopus bag charm. Pick any colour you love.",image:"assets/octopus-keyring.jpg",video:"assets/video-2.mp4",poster:"assets/octopus-keyring.jpg",color:"#C9A0A0"},
+  {id:4,name:"Blue Daisy Choker & Earring Set",category:"Jewelry",price:1200,description:"Hand-beaded daisy choker with matching hoop earrings. A full set.",image:null,video:"assets/video-1.mp4",poster:"assets/video-1-poster.jpg",color:"#FFB6C1"},
+  {id:5,name:"Beaded Daisy Hair Pin",category:"Accessories",price:600,description:"Tiny white-and-gold beaded daisies on a gold pin. Perfect for brides.",image:"assets/daisy-hairpin.jpg",color:"#FFE4EE"},
+  {id:6,name:"Pearl Bridal Hair Vine",category:"Accessories",price:1500,description:"Flexible pearl-cluster vine that bends to any hairstyle. Wedding ready.",image:"assets/pearl-hair-vine.jpg",color:"#C9A0A0"},
+  {id:7,name:"Hand-knit Woolen Sweater",category:"Knitwear",price:3500,description:"Cosy hand-knitted wool sweater. Made to order in your size and colour.",image:null,color:"#D4537E"},
+  {id:8,name:"Beaded Flower Ring",category:"Jewelry",price:250,description:"Adjustable seed-bead flower ring. Mix and match the colours.",image:null,color:"#FFB6C1"},
+  {id:9,name:"Beaded Daisy Earrings",category:"Jewelry",price:450,description:"Lightweight daisy drop earrings, hand-beaded one petal at a time.",image:null,color:"#C9A0A0"},
+  {id:10,name:"Crochet Tote Bag",category:"Crochet",price:1600,description:"Roomy everyday tote crocheted in soft cotton. Holds more than it looks.",image:null,color:"#FFE4EE"}
+];
+
+/* Mock orders (demo data) */
+const MOCK_ORDERS = [
+  {id:"SH-1042",customer:"Anjali Shrestha",items:"Octopus Keyring x2, Daisy Hair Pin",total:1300,status:"Pending"},
+  {id:"SH-1041",customer:"Maya Gurung",items:"Granny Square Halter Top",total:1800,status:"Processing"},
+  {id:"SH-1040",customer:"Sita Rai",items:"Pearl Bridal Hair Vine, Beaded Flower Ring",total:1750,status:"Shipped"},
+  {id:"SH-1039",customer:"Pooja Tamang",items:"Hand-knit Woolen Sweater",total:3500,status:"Delivered"}
+];
+
+/* ---------- helpers ---------- */
+const $=(s)=>document.querySelector(s);
+const $$=(s)=>Array.from(document.querySelectorAll(s));
+const npr=(n)=>"NPR "+Number(n).toLocaleString("en-IN");
+function load(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f;}catch(e){return f;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+let products = load(KEYS.products,null);
+if(!products){ products = DEFAULT_PRODUCTS.slice(); save(KEYS.products,products); }
+let orders = MOCK_ORDERS.slice();
+let editingId = null;
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+function tryLogin(){
+  const u=$("#user").value.trim(), p=$("#pass").value;
+  if(u==="admin" && p==="shila2024"){
+    $("#loginWrap").style.display="none";
+    $("#app").style.display="grid";
+    refreshAll();
+  } else {
+    $("#loginErr").textContent="Wrong username or password.";
+  }
+}
+$("#loginBtn").addEventListener("click",tryLogin);
+$("#pass").addEventListener("keydown",(e)=>{ if(e.key==="Enter") tryLogin(); });
+$("#logoutBtn").addEventListener("click",()=>{
+  $("#app").style.display="none";
+  $("#loginWrap").style.display="grid";
+  $("#user").value=""; $("#pass").value=""; $("#loginErr").textContent="";
+});
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
+$$(".nav-item[data-view]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const view=btn.dataset.view;
+    $$(".nav-item[data-view]").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    $$(".view").forEach(v=>v.classList.remove("active"));
+    $("#view-"+view).classList.add("active");
+    $("#viewTitle").textContent=btn.textContent.trim().replace(/^[^A-Za-z]+/,"");
+    refreshAll();
+  });
+});
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+function renderDashboard(){
+  const messages=load(KEYS.messages,[]);
+  const wishlist=load(KEYS.wishlist,[]);
+  $("#statProducts").textContent=products.length;
+  $("#statOrders").textContent=orders.length;
+  $("#statMessages").textContent=messages.length;
+  $("#statWishlist").textContent=wishlist.length;
+
+  const body=$("#recentMessages"); body.innerHTML="";
+  const recent=messages.slice(-5).reverse();
+  $("#recentEmpty").hidden=recent.length!==0;
+  recent.forEach(m=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${esc(m.name)}</td><td>${esc(m.email)}</td>
+      <td>${esc(m.message).slice(0,40)}${m.message.length>40?"…":""}</td><td>${esc(m.date)}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* =========================================================
+   PRODUCTS — list + add/edit/delete
+   ========================================================= */
+function thumb(p){
+  if(p.image) return `<img class="thumb-cell" src="${esc(p.image)}" alt="" onerror="this.style.display='none'" />`;
+  if(p.video) return `<img class="thumb-cell" src="${esc(p.poster||"")}" alt="" onerror="this.style.display='none'" />`;
+  return `<div class="thumb-cell" style="background:${p.color||"#FFB6C1"}">&#10047;</div>`;
+}
+
+function renderProducts(){
+  const body=$("#productRows"); body.innerHTML="";
+  products.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${thumb(p)}</td>
+      <td>${esc(p.name)}</td>
+      <td><span class="tag">${esc(p.category)}</span></td>
+      <td>${npr(p.price)}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-ghost btn-sm" data-edit="${p.id}">Edit</button>
+        <button class="btn btn-danger btn-sm" data-del="${p.id}">Delete</button>
+      </div></td>`;
+    body.appendChild(tr);
+  });
+  $$("[data-edit]").forEach(b=>b.addEventListener("click",()=>editProduct(Number(b.dataset.edit))));
+  $$("[data-del]").forEach(b=>b.addEventListener("click",()=>deleteProduct(Number(b.dataset.del))));
+}
+
+function editProduct(id){
+  const p=products.find(x=>x.id===id); if(!p) return;
+  editingId=id;
+  $("#productFormTitle").textContent="Edit Product";
+  $("#pName").value=p.name;
+  $("#pCategory").value=p.category;
+  $("#pPrice").value=p.price;
+  $("#pImage").value=p.image||"";
+  showPreview(p.image||"");
+  $("#pDesc").value=p.description;
+  $("#view-products").scrollIntoView({behavior:"smooth"});
+}
+
+function deleteProduct(id){
+  const p=products.find(x=>x.id===id);
+  if(!confirm(`Delete "${p?p.name:""}"? This cannot be undone.`)) return;
+  products=products.filter(x=>x.id!==id);
+  save(KEYS.products,products);
+  refreshAll();
+}
+
+function saveProduct(){
+  const name=$("#pName").value.trim();
+  const price=Number($("#pPrice").value);
+  if(!name){ alert("Please enter a product name."); return; }
+  if(!price||price<0){ alert("Please enter a valid price."); return; }
+
+  const data={
+    name,
+    category:$("#pCategory").value,
+    price,
+    description:$("#pDesc").value.trim()||"Handmade with love in Nepal.",
+    image:$("#pImage").value.trim()||null
+  };
+
+  if(editingId){
+    const i=products.findIndex(x=>x.id===editingId);
+    products[i]={...products[i],...data};
+  } else {
+    const newId=products.length?Math.max(...products.map(p=>p.id))+1:1;
+    products.push({id:newId,color:"#FFB6C1",...data});
+  }
+  save(KEYS.products,products);
+  resetProductForm();
+  refreshAll();
+}
+
+function resetProductForm(){
+  editingId=null;
+  $("#productFormTitle").textContent="Add New Product";
+  $("#pName").value=""; $("#pPrice").value=""; $("#pImage").value=""; $("#pDesc").value="";
+  $("#pCategory").value="Crochet";
+  $("#imgFile").value="";
+  setStatus("No image chosen yet.","");
+  showPreview("");
+}
+
+$("#saveProductBtn").addEventListener("click",saveProduct);
+$("#resetProductBtn").addEventListener("click",resetProductForm);
+
+/* ---------------------------------------------------------
+   IMAGE UPLOAD (imgbb) — pick a file, upload, fill the URL
+   --------------------------------------------------------- */
+function setStatus(text,kind){
+  const el=$("#uploadStatus");
+  el.textContent=text;
+  el.className="upload-status"+(kind?" "+kind:"");
+}
+function showPreview(src){
+  const img=$("#imgPreview");
+  if(src){ img.src=src; img.hidden=false; }
+  else { img.removeAttribute("src"); img.hidden=true; }
+}
+
+// Open the hidden file picker when the button is clicked
+$("#chooseImgBtn").addEventListener("click",()=>$("#imgFile").click());
+
+// Keep the preview in sync if someone types/pastes a link
+$("#pImage").addEventListener("input",()=>showPreview($("#pImage").value.trim()));
+
+// When a file is chosen, upload it to imgbb
+$("#imgFile").addEventListener("change",async (e)=>{
+  const file=e.target.files[0];
+  if(!file) return;
+
+  if(file.size > 32*1024*1024){
+    setStatus("That image is too big (max 32 MB).","err");
+    return;
+  }
+
+  setStatus("Uploading…","busy");
+  try{
+    const form=new FormData();
+    form.append("image",file);
+    const res=await fetch("https://api.imgbb.com/1/upload?key="+IMGBB_KEY,{
+      method:"POST",
+      body:form
+    });
+    const data=await res.json();
+    if(data && data.success && data.data && data.data.url){
+      $("#pImage").value=data.data.url;
+      showPreview(data.data.url);
+      setStatus("Uploaded! Now click Save Product.","ok");
+    } else {
+      setStatus("Upload failed. Try again or paste a link below.","err");
+    }
+  }catch(err){
+    setStatus("Upload error. Check your internet and try again.","err");
+  }
+});
+
+/* =========================================================
+   MESSAGES — read / delete
+   ========================================================= */
+function renderMessages(){
+  const body=$("#messageRows"); body.innerHTML="";
+  const messages=load(KEYS.messages,[]);
+  $("#messagesEmpty").hidden=messages.length!==0;
+  messages.slice().reverse().forEach(m=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${m.read?'<span class="badge-read">Read</span>':'<span class="badge-unread">New</span>'}</td>
+      <td>${esc(m.name)}</td>
+      <td>${esc(m.email)}</td>
+      <td>${esc(m.message)}</td>
+      <td>${esc(m.date)}</td>
+      <td><div class="row-actions">
+        ${m.read?"":`<button class="btn btn-ghost btn-sm" data-read="${m.id}">Mark read</button>`}
+        <button class="btn btn-danger btn-sm" data-delmsg="${m.id}">Delete</button>
+      </div></td>`;
+    body.appendChild(tr);
+  });
+  $$("[data-read]").forEach(b=>b.addEventListener("click",()=>markRead(Number(b.dataset.read))));
+  $$("[data-delmsg]").forEach(b=>b.addEventListener("click",()=>deleteMessage(Number(b.dataset.delmsg))));
+}
+
+function markRead(id){
+  const messages=load(KEYS.messages,[]);
+  const m=messages.find(x=>x.id===id); if(m) m.read=true;
+  save(KEYS.messages,messages);
+  refreshAll();
+}
+function deleteMessage(id){
+  if(!confirm("Delete this message?")) return;
+  let messages=load(KEYS.messages,[]);
+  messages=messages.filter(x=>x.id!==id);
+  save(KEYS.messages,messages);
+  refreshAll();
+}
+
+/* =========================================================
+   ORDERS — status dropdown
+   ========================================================= */
+function renderOrders(){
+  const body=$("#orderRows"); body.innerHTML="";
+  const statuses=["Pending","Processing","Shipped","Delivered"];
+  orders.forEach((o,idx)=>{
+    const tr=document.createElement("tr");
+    const opts=statuses.map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("");
+    tr.innerHTML=`
+      <td><strong>${esc(o.id)}</strong></td>
+      <td>${esc(o.customer)}</td>
+      <td>${esc(o.items)}</td>
+      <td>${npr(o.total)}</td>
+      <td><select class="status-select" data-order="${idx}">${opts}</select></td>`;
+    body.appendChild(tr);
+  });
+  $$("[data-order]").forEach(sel=>sel.addEventListener("change",()=>{
+    orders[Number(sel.dataset.order)].status=sel.value;
+  }));
+}
+
+/* =========================================================
+   REFRESH everything (reads latest localStorage each time)
+   ========================================================= */
+function refreshAll(){
+  products=load(KEYS.products,DEFAULT_PRODUCTS);
+  renderDashboard();
+  renderProducts();
+  renderMessages();
+  renderOrders();
+}
+</script>
+</body>
+</html>
