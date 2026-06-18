@@ -570,8 +570,11 @@ async function uploadImage(input) {
   try {
     const formData = new FormData();
     formData.append('image', input.files[0]);
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
-    const data = await res.json();
+const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}&expiration=600`, { 
+  method: 'POST', 
+  body: formData,
+  mode: 'cors'
+});    const data = await res.json();
     if (!data.success) throw new Error('Upload failed');
     const url = data.data.url;
     document.getElementById('modal-image').value = url;
