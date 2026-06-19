@@ -246,18 +246,28 @@ function renderCheckoutSummary() {
 let currentOrderId = null;
 
 async function placeOrder() {
-  const customerName = $('checkout-name')?.value?.trim() || 'Customer';
+  const customerName = $('co-name')?.value?.trim();
+  const phone        = $('co-phone')?.value?.trim();
+  const address      = $('co-address')?.value?.trim();
+  const email        = $('co-email')?.value?.trim() || '';
+
+  if (!customerName || !phone || !address) {
+    showToast('Please fill in your name, phone and address.');
+    return;
+  }
+
   const items = cart.map(i => ({
     productId: i._id, name: i.name, price: i.price, quantity: i.qty, image: i.image
   }));
   const total = cartTotal();
+
   try {
     const res = await fetch(`${API_BASE}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerName, items, total })
+      body: JSON.stringify({ customerName, phone, address, email, items, total })
     });
-    if (!res.ok) throw new Error('Order creation failed');
+    if (!res.ok) throw new Error('failed');
     const order = await res.json();
     currentOrderId = order._id;
     $('confirmOrderBtn').hidden = true;
@@ -268,7 +278,6 @@ async function placeOrder() {
     showToast('Could not create order. Please try again.');
   }
 }
-
 async function payWithEsewa() {
   if (!currentOrderId) return;
   try {
@@ -294,9 +303,10 @@ async function payWithEsewa() {
 
 async function payWithKhalti() {
   if (!currentOrderId) return;
-  const email = $('checkout-email')?.value?.trim() || '';
-  const phone = $('checkout-phone')?.value?.trim() || '';
-  const customerName = $('checkout-name')?.value?.trim() || 'Customer';
+  const email        = $('co-email')?.value?.trim() || '';
+  const phone        = $('co-phone')?.value?.trim() || '';
+  const customerName = $('co-name')?.value?.trim() || 'Customer';
+  
   try {
     const res = await fetch(`${API_BASE}/payments/khalti/initiate`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
