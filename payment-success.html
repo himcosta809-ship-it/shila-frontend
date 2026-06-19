@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Successful | Shila Handicraft</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fdf6fb 0%, #fce4f3 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 3rem 2.5rem 2.5rem;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(212, 83, 126, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* decorative top strip */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #D4537E, #f0a0c0, #D4537E);
+    }
+
+    /* ── Loading state ── */
+    .spinner {
+      width: 56px; height: 56px;
+      border: 4px solid #fce4f3;
+      border-top-color: #D4537E;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Icon states ── */
+    .status-icon {
+      font-size: 3.5rem;
+      line-height: 1;
+      margin-bottom: 1rem;
+      display: none;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 0.5rem;
+    }
+    h1.success { color: #D4537E; }
+    h1.warning { color: #e67e22; }
+    h1.error   { color: #c0392b; }
+
+    .subtitle {
+      color: #777;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Order info box ── */
+    .order-box {
+      background: #fdf6fb;
+      border: 1px solid #f5cfe3;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      text-align: left;
+      display: none;
+    }
+    .order-box .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #f0d0e0;
+    }
+    .order-box .row:last-child { border-bottom: none; }
+    .order-box .label { color: #999; }
+    .order-box .value { color: #333; font-weight: 600; }
+    .order-box .value.paid { color: #27ae60; }
+
+    /* ── Buttons ── */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .btn-primary {
+      background: linear-gradient(135deg, #D4537E, #e87ea6);
+      color: #fff;
+    }
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25d366, #1ebe5d);
+      color: #fff;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #f0d0e0;
+      color: #D4537E;
+    }
+
+    /* ── Branding ── */
+    .brand {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #f5e0ed;
+      font-size: 0.8rem;
+      color: #bbb;
+      letter-spacing: 0.02em;
+    }
+    .brand strong { color: #D4537E; font-weight: 600; }
+
+    /* hidden by default */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- Loading -->
+    <div id="loadingState">
+      <div class="spinner"></div>
+      <h1>Confirming your payment…</h1>
+      <p class="subtitle">Please wait while we verify your transaction with the payment provider.</p>
+    </div>
+
+    <!-- Result (shown after verify) -->
+    <div id="resultState" class="hidden">
+      <div class="status-icon" id="statusIcon"></div>
+      <h1 id="resultTitle"></h1>
+      <p class="subtitle" id="resultMessage"></p>
+
+      <div class="order-box" id="orderBox">
+        <div class="row">
+          <span class="label">Order ID</span>
+          <span class="value" id="infoOrderId">—</span>
+        </div>
+        <div class="row">
+          <span class="label">Payment via</span>
+          <span class="value" id="infoProvider">—</span>
+        </div>
+        <div class="row">
+          <span class="label">Status</span>
+          <span class="value paid" id="infoStatus">—</span>
+        </div>
+      </div>
+
+      <div class="btn-group" id="btnGroup"></div>
+    </div>
+
+    <div class="brand">
+      Shila Handicraft &nbsp;·&nbsp; <strong>Handmade with ♥ in Nepal</strong>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE   = 'https://shila-backend.onrender.com/api';
+    const WHATSAPP   = '9779765352818'; // ← your WhatsApp number
+    const params     = new URLSearchParams(window.location.search);
+    const provider   = params.get('provider') || '';
+    const orderId    = params.get('orderId')  || '';
+
+    function showResult({ icon, titleText, titleClass, message, showOrderBox, statusText, btnHTML }) {
+      document.getElementById('loadingState').classList.add('hidden');
+      const rs = document.getElementById('resultState');
+      rs.classList.remove('hidden');
+
+      const ic = document.getElementById('statusIcon');
+      ic.textContent = icon;
+      ic.style.display = 'block';
+
+      const t = document.getElementById('resultTitle');
+      t.textContent = titleText;
+      t.className = titleClass;
+
+      document.getElementById('resultMessage').textContent = message;
+
+      if (showOrderBox) {
+        const box = document.getElementById('orderBox');
+        box.style.display = 'block';
+        document.getElementById('infoOrderId').textContent  = orderId  || '—';
+        document.getElementById('infoProvider').textContent = provider === 'esewa' ? 'eSewa' : provider === 'khalti' ? 'Khalti' : provider;
+        document.getElementById('infoStatus').textContent   = statusText;
+      }
+
+      document.getElementById('btnGroup').innerHTML = btnHTML;
+    }
+
+    async function verify() {
+      try {
+        let res;
+
+        if (provider === 'esewa') {
+          const dataParam = params.get('data');
+          let transactionUuid = null;
+          if (dataParam) {
+            try {
+              const decoded = JSON.parse(atob(dataParam));
+              transactionUuid = decoded.transaction_uuid;
+            } catch (_) {}
+          }
+          res = await fetch(`${API_BASE}/payments/esewa/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionUuid })
+          });
+        } else if (provider === 'khalti') {
+          const pidx = params.get('pidx');
+          res = await fetch(`${API_BASE}/payments/khalti/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pidx })
+          });
+        } else {
+          throw new Error('Unknown provider');
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          showResult({
+            icon: '✅',
+            titleText: 'Payment Successful!',
+            titleClass: 'success',
+            message: 'Thank you for your order! We\'ve received your payment and will contact you soon to confirm delivery details.',
+            showOrderBox: true,
+            statusText: '✔ Paid',
+            btnHTML: `
+              <a href="/" class="btn btn-primary">🛍️ Continue Shopping</a>
+              <a href="https://wa.me/${WHATSAPP}?text=Hi%20Shila%20Handicraft!%20I%20just%20placed%20Order%20${encodeURIComponent(orderId)}%20and%20payment%20was%20successful."
+                 class="btn btn-whatsapp" target="_blank">
+                💬 Message Us on WhatsApp
+              </a>
+            `
+          });
+        } else {
+          showResult({
+            icon: '⚠️',
+            titleText: 'Payment Not Confirmed',
+            titleClass: 'warning',
+            message: 'We couldn\'t verify your payment. If any amount was deducted from your account, please contact us immediately via WhatsApp with your Order ID.',
+            showOrderBox: true,
+            statusText: 'Unconfirmed',
+            btnHTML: `
+              <a href="https://wa.me/${WHATSAPP}?text=Hi!%20I%20tried%20to%20pay%20for%20Order%20${encodeURIComponent(orderId)}%20via%20${encodeURIComponent(provider)}%20but%20it%20wasn't%20confirmed."
+                 class="btn btn-whatsapp" target="_blank">
+                💬 Contact Us on WhatsApp
+              </a>
+              <a href="/" class="btn btn-outline">← Return to Shop</a>
+            `
+          });
+        }
+
+      } catch (err) {
+        showResult({
+          icon: '❌',
+          titleText: 'Verification Failed',
+          titleClass: 'error',
+          message: 'We could not reach our server to confirm your payment. Please don\'t panic — contact us on WhatsApp with your Order ID and we\'ll sort it out.',
+          showOrderBox: false,
+          statusText: '',
+          btnHTML: `
+            <a href="https://wa.me/${WHATSAPP}?text=Hi!%20I%20completed%20a%20payment%20for%20Order%20${encodeURIComponent(orderId)}%20but%20got%20a%20verification%20error."
+               class="btn btn-whatsapp" target="_blank">
+              💬 Contact Us on WhatsApp
+            </a>
+            <a href="/" class="btn btn-outline">← Return to Shop</a>
+          `
+        });
+      }
+    }
+
+    verify();
+  </script>
+</body>
+</html>
