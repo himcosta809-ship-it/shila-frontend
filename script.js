@@ -242,14 +242,71 @@ function renderCheckoutSummary() {
   if (totalEl) totalEl.textContent = formatPrice(cartTotal());
 }
 
-function confirmOrder() {
-  // Demo checkout — order is not actually sent to the backend here,
-  // matching the existing "message us on WhatsApp" demo flow.
-  showToast('Thanks! Please confirm via WhatsApp to complete your order.');
-  cart = [];
-  saveCart();
-  updateCartUI();
-  closeCheckout();
+// ── Payment state ──────────────────────────────────────────────────────
+let currentOrderId = null;
+
+async function placeOrder() {
+  const customerName = $('checkout-name')?.value?.trim() || 'Customer';
+  const items = cart.map(i => ({
+    productId: i._id, name: i.name, price: i.price, quantity: i.qty, image: i.image
+  }));
+  const total = cartTotal();
+  try {
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerName, items, total })
+    });
+    if (!res.ok) throw new Error('Order creation failed');
+    const order = await res.json();
+    currentOrderId = order._id;
+    $('confirmOrderBtn').hidden = true;
+    const pb = $('paymentButtons');
+    pb.hidden = false;
+    pb.style.display = 'flex';
+  } catch (err) {
+    showToast('Could not create order. Please try again.');
+  }
+}
+
+async function payWithEsewa() {
+  if (!currentOrderId) return;
+  try {
+    const res = await fetch(`${API_BASE}/payments/esewa/initiate`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: currentOrderId, amount: cartTotal() })
+    });
+    const data = await res.json();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = data.paymentUrl;
+    Object.entries(data.fields).forEach(([key, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = key; input.value = value;
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+  } catch (err) {
+    showToast('Could not start eSewa payment.');
+  }
+}
+
+async function payWithKhalti() {
+  if (!currentOrderId) return;
+  const email = $('checkout-email')?.value?.trim() || '';
+  const phone = $('checkout-phone')?.value?.trim() || '';
+  const customerName = $('checkout-name')?.value?.trim() || 'Customer';
+  try {
+    const res = await fetch(`${API_BASE}/payments/khalti/initiate`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: currentOrderId, amount: cartTotal(), customerName, email, phone })
+    });
+    const data = await res.json();
+    window.location.href = data.paymentUrl;
+  } catch (err) {
+    showToast('Could not start Khalti payment.');
+  }
 }
 
 // ── Contact form ──────────────────────────────────────────────────────────
@@ -312,7 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
   $('checkoutBtn')?.addEventListener('click', openCheckout);
 
   $('modalClose')?.addEventListener('click', closeCheckout);
-  $('confirmOrderBtn')?.addEventListener('click', confirmOrder);
+ $('confirmOrderBtn')?.addEventListener('click', placeOrder);
+$('payEsewaBtn')?.addEventListener('click', payWithEsewa);
+$('payKhaltiBtn')?.addEventListener('click', payWithKhalti);
 
   $('shopNowBtn')?.addEventListener('click', () => $('shop')?.scrollIntoView({ behavior: 'smooth' }));
 
